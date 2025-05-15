@@ -1,47 +1,29 @@
-const express = require('express');
-require('dotenv').config();
-const mongoose = require('mongoose');
-const cors = require('cors');
-const connectDB = require('./db.config');
-const userRoutes = require('./Routes/userRoute');
-const taskRoutes = require('./Routes/taskRoutes');
+const express = require('express')
+const dotenv = require("dotenv")
+const userRoutes = require("./routes/userRoutes")
+const taskRoute = require("./routes/tasksRoutes")
+const connecttoDb = require('./db.config')
+dotenv.config()
+
+const port = process.env.PORT ||8000
 
 
-const port = process.env.PORT || 3000;
-const app = express();
-const corsOptions = {
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-}
-// Middleware
-app.use(express.static('public'));
-app.use(cors(corsOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use('/api/users', userRoutes);
-app.use('/api/tasks', taskRoutes);
+const app = express()
+
+//middlewares
+app.use(express.json())
+app.use("/api/users",userRoutes)
+app.use("/api/tasks",taskRoute)
 
 
-// Routes
-app.get('/', (req, res) => {
-    res.send('Hello World!');
-});
+//connection established
 
-
-// Start server
-
-connectDB().then(() => {
-    app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
-    });
-}
-).catch((error) => {
-    console.error('Error connecting to MongoDB:', error);
-    process.exit(1);
-}
-);
-
-
+connecttoDb().then(()=>{
+    app.listen(port,()=>{
+        console.log(`app is running on ${port}`)
+    })
+}).catch(()=>{
+    console.error("connection failed");
+    
+})
 
