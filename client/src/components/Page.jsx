@@ -1,4 +1,170 @@
 import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+
+const theme = {
+    primary: "#4A90E2",
+    secondary: "#F5F7FA",
+    danger: "#E74C3C",
+    text: "#2C3E50",
+    border: "#E1E8ED",
+    success: "#2ECC71",
+    hover: "#3498DB",
+};
+
+const Container = styled.div`
+    padding: 2rem;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    max-width: 800px;
+    margin: 2rem auto;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const Title = styled.h1`
+    text-align: center;
+    color: ${theme.text};
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    position: relative;
+    
+    &:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 4px;
+        background-color: ${theme.primary};
+        border-radius: 2px;
+    }
+`;
+
+const TaskList = styled.ul`
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0;
+`;
+
+const TaskItem = styled.li`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border: 1px solid ${theme.border};
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    background-color: ${theme.secondary};
+    transition: all 0.2s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    div {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 1rem;
+        color: ${theme.text};
+    }
+`;
+
+const Checkbox = styled.input`
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid ${theme.primary};
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+
+    &:checked {
+        background-color: ${theme.primary};
+        border-color: ${theme.primary};
+    }
+
+    &:checked:after {
+        content: '✓';
+        position: absolute;
+        color: white;
+        font-size: 14px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    &:hover {
+        border-color: ${theme.hover};
+    }
+`;
+
+const DeleteButton = styled.button`
+    background-color: transparent;
+    color: ${theme.danger};
+    border: 1px solid ${theme.danger};
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: ${theme.danger};
+        color: white;
+    }
+`;
+
+const PaginationContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+`;
+
+const PaginationButton = styled.button`
+    background-color: ${theme.primary};
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:disabled {
+        background-color: ${theme.border};
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    &:hover:enabled {
+        background-color: ${theme.hover};
+        transform: translateY(-1px);
+    }
+
+    &:active:enabled {
+        transform: translateY(0);
+    }
+`;
+
+const LoadingContainer = styled(Container)`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    font-size: 1.2rem;
+    color: ${theme.text};
+`;
+
+const ErrorContainer = styled(LoadingContainer)`
+    color: ${theme.danger};
+`;
 
 const Page = () => {
     const [data, setData] = useState([]);
@@ -43,32 +209,40 @@ const Page = () => {
     }, [page]);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <LoadingContainer>Loading...</LoadingContainer>;
     }
 
     if (error) {
-        return <div>Error...</div>;
+        return <ErrorContainer>Error loading tasks. Please try again later.</ErrorContainer>;
     }
 
     return (
-        <div>
-            <h1>Task List</h1>
-            <ul>
+        <Container>
+            <Title>Task List</Title>
+            <TaskList>
                 {data.map((item) => (
-                    <li key={item.id}>
-                        <input
-                            type="checkbox"
-                            checked={item.completed}
-                            onChange={() => updateData(item.id, item.completed)}
-                        />
-                        {item.title}
-                        <button onClick={() => removeData(item.id)}>Delete</button>
-                    </li>
+                    <TaskItem key={item.id}>
+                        <div>
+                            <Checkbox
+                                type="checkbox"
+                                checked={item.completed}
+                                onChange={() => updateData(item.id, item.completed)}
+                            />
+                            {item.title}
+                        </div>
+                        <DeleteButton onClick={() => removeData(item.id)}>Delete</DeleteButton>
+                    </TaskItem>
                 ))}
-            </ul>
-            <button disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</button>
-            <button disabled={page === totalPages} onClick={() => setPage(page + 1)}>Next</button>
-        </div>
+            </TaskList>
+            <PaginationContainer>
+                <PaginationButton disabled={page === 1} onClick={() => setPage(page - 1)}>
+                    Previous
+                </PaginationButton>
+                <PaginationButton disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+                    Next
+                </PaginationButton>
+            </PaginationContainer>
+        </Container>
     );
 };
 
